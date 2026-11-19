@@ -1,5 +1,5 @@
 extern crate tiny_http;
-extern crate multipart;
+extern crate multipart_ng as multipart;
 
 use std::io::{self, Cursor, Write};
 use multipart::server::{Multipart, Entries, SaveResult};

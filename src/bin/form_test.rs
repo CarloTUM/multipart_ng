@@ -1,5 +1,5 @@
 extern crate hyper;
-extern crate multipart;
+extern crate multipart_ng as multipart;
 
 use multipart::server::Multipart;
 

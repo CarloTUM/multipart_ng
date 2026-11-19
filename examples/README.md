@@ -1,9 +1,14 @@
-`multipart` Examples
-===========================
+`multipart_ng` Examples
+=======================
 
-These example files show how to use `multipart` with the various crates it integrates with.
+These example files show how to use `multipart_ng` with the various crates it integrates with.
+They import the crate as `multipart` (`extern crate multipart_ng as multipart;`), which is what
+you get with the `package = "multipart_ng"` rename recommended in the [main README](../README.md).
 
-These files carry the same licenses as [`multipart` itself](https://github.com/abonander/multipart#license), though this may be lightened to a copyright-free license in the near future.
+The integrations target old framework versions (hyper 0.9/0.10, iron 0.4–0.6, tiny_http 0.6,
+Rocket 0.4). The Rocket example needs a nightly compiler, as Rocket 0.4 does.
+
+These files carry the same licenses as [`multipart_ng` itself](../README.md#license).
 
 ## Client
 
@@ -100,9 +105,8 @@ $ cargo run --example nickel --features nickel
 -------------------
 Author: [abonander]
 
-This example shows how `multipart`'s server API can be used with [Rocket](https://rocket.rs) without
-explicit support (the Rocket folks seem to want to handle `multipart/form-data` behind the scenes
-but haven't gotten around to implementing it yet; this would supercede any integration from `multipart`). 
+This example shows how `multipart`'s server API can be used with [Rocket](https://rocket.rs) 0.4
+without explicit support. (Rocket 0.5 and later handle `multipart/form-data` themselves.)
 
 ```
 $ cargo run --example rocket --features "rocket"

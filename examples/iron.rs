@@ -1,4 +1,4 @@
-extern crate multipart;
+extern crate multipart_ng as multipart;
 extern crate iron;
 
 extern crate env_logger;
