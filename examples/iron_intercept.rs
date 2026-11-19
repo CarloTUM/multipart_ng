@@ -1,5 +1,5 @@
 extern crate iron;
-extern crate multipart;
+extern crate multipart_ng as multipart;
 
 use iron::prelude::*;
 

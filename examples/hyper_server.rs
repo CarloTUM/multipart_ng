@@ -1,5 +1,5 @@
 extern crate hyper;
-extern crate multipart;
+extern crate multipart_ng as multipart;
 
 use std::io;
 use hyper::server::{Handler, Server, Request, Response};

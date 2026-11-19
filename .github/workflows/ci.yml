@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  schedule:
+    # weekly, to catch breakage from new Rust releases
+    - cron: "0 6 * * 1"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: test (${{ matrix.os }}, default features)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+
+  features:
+    name: test (${{ matrix.features }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        features: ["server", "client", "client,server"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --no-default-features --features "${{ matrix.features }}"
+
+  future-incompat:
+    name: no future-incompatibility warnings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Build and check report
+        run: |
+          # deny the lint in this crate, and fail on future-incompat reports from dependencies
+          # (recommended feature set; the default features pull in typemap, which has one)
+          RUSTFLAGS="-D semicolon_in_expressions_from_macros" \
+            cargo build --no-default-features --features client,server 2>&1 | tee build.log
+          if grep -q "will be rejected by a future version of Rust" build.log; then
+            cargo report future-incompatibilities
+            exit 1
+          fi

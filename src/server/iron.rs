@@ -48,7 +48,7 @@ pub const DEFAULT_FILE_COUNT_LIMIT: u32 = 16;
 ///
 /// ```no_run
 /// extern crate iron;
-/// extern crate multipart;
+/// extern crate multipart_ng as multipart;
 ///
 /// use iron::prelude::*;
 ///

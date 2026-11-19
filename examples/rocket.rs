@@ -5,7 +5,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #![feature(plugin, custom_attribute)]
 
-extern crate multipart;
+extern crate multipart_ng as multipart;
 #[macro_use]
 extern crate rocket;
 

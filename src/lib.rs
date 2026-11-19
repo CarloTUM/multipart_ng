@@ -6,6 +6,20 @@
 // copied, modified, or distributed except according to those terms.
 //! Client- and server-side abstractions for HTTP `multipart/form-data` requests.
 //!
+//! This is `multipart_ng`, a maintained fork of [`multipart`](https://crates.io/crates/multipart)
+//! 0.18.0 with an identical API. Add it under the name `multipart` so that existing
+//! `use multipart::...` imports keep working, and enable only the features you need:
+//!
+//! ```toml
+//! [dependencies]
+//! multipart = { package = "multipart_ng", version = "0.18", default-features = false, features = ["server"] }
+//! ```
+//!
+//! The examples in this documentation use that name. Without the rename, write
+//! `multipart_ng::` instead. The default features enable integrations for old framework
+//! versions with known vulnerabilities in their dependency trees; see the
+//! [README](https://github.com/CarloTUM/multipart_ng#installation) for details.
+//!
 //! ### Features:
 //! This documentation is built with all features enabled.
 //!
@@ -17,25 +31,23 @@
 //! or non-standard use.
 //!
 //! * `hyper`: Integration with the [Hyper](https://crates.io/crates/hyper) HTTP library
-//! for client and/or server depending on which other feature flags are set.
+//! (0.9 and 0.10 only, the old synchronous API) for client and/or server depending on which
+//! other feature flags are set.
 //!
 //! * `iron`: Integration with the [Iron](http://crates.io/crates/iron) web application
 //! framework. See the [`server::iron`](server/iron/index.html) module for more information.
 //!
-//! * `nickel` (returning in 0.14!): Integration with the [Nickel](https://crates.io/crates/nickel)
+//! * `nickel`: Integration with the [Nickel](https://crates.io/crates/nickel)
 //! web application framework. See the [`server::nickel`](server/nickel/index.html) module for more
 //! information.
 //!
 //! * `tiny_http`: Integration with the [`tiny_http`](https://crates.io/crates/tiny_http)
-//! crate. See the [`server::tiny_http`](server/tiny_http/index.html) module for more information.
+//! crate (0.6). See the [`server::tiny_http`](server/tiny_http/index.html) module for more information.
 //!
-//! ### Note: Work in Progress
-//! I have left a number of Request-for-Comments (RFC) questions on various APIs and other places
-//! in the code as there are some cases where I'm not sure what the desirable behavior is.
-//!
-//! I have opened an issue as a place to collect responses and discussions for these questions
-//! [on Github](https://github.com/abonander/multipart/issues/96). Please quote the RFC-statement
-//! (and/or link to its source line) and provide your feedback there.
+//! ### Using it with other servers
+//! The server side only needs a body implementing `std::io::Read` and the boundary from the
+//! `Content-Type` header: use [`server::Multipart::with_body()`](server/struct.Multipart.html#method.with_body),
+//! or implement [`server::HttpRequest`](server/trait.HttpRequest.html) for your request type.
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 #![cfg_attr(feature = "clippy", deny(clippy))]
@@ -77,7 +89,7 @@ use rand::Rng;
 /// Chain a series of results together, with or without previous results.
 ///
 /// ```
-/// #[macro_use] extern crate multipart;
+/// #[macro_use] extern crate multipart_ng as multipart;
 ///
 /// fn try_add_one(val: u32) -> Result<u32, u32> {
 ///     if val < 5 {

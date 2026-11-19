@@ -1,5 +1,5 @@
 #[macro_use] extern crate log;
-extern crate multipart;
+extern crate multipart_ng as multipart;
 extern crate rand;
 
 use multipart::server::Multipart;
