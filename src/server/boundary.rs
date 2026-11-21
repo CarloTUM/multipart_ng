@@ -211,7 +211,16 @@ fn find_boundary(buf: &[u8], boundary: &[u8]) -> Result<usize, usize> {
         }
     }
 
-    Err(buf.len())
+    // The CRLF preceding a boundary belongs to the boundary, not to the field's contents.
+    // If the buffer ends in (part of) a CRLF we can't know yet whether a boundary follows,
+    // so hold it back until more data is available.
+    if buf.ends_with(b"\r\n") {
+        Err(buf.len() - 2)
+    } else if buf.ends_with(b"\r") {
+        Err(buf.len() - 1)
+    } else {
+        Err(buf.len())
+    }
 }
 
 #[cfg(feature = "bench")]
@@ -370,6 +379,56 @@ mod test {
         debug!("Read 4");
         let _ = reader.read_to_string(buf).unwrap();
         assert_eq!(buf, "");
+    }
+
+    /// A reader that hands out at most `chunk` bytes per `read()` call.
+    struct ChunkReader<'a> {
+        data: &'a [u8],
+        chunk: usize,
+    }
+
+    impl<'a> Read for ChunkReader<'a> {
+        fn read(&mut self, dst: &mut [u8]) -> io::Result<usize> {
+            let len = ::std::cmp::min(self.chunk, self.data.len());
+            (&self.data[..len]).read(dst).map(|read| {
+                self.data = &self.data[read..];
+                read
+            })
+        }
+    }
+
+    /// Regression test for abonander/multipart#139: if the CRLF preceding a boundary straddled
+    /// the end of the internal buffer (or the buffer ended right after it), it was yielded as
+    /// part of the field's contents.
+    #[test]
+    fn test_crlf_at_buffer_end() {
+        ::init_log();
+
+        // covers several multiples of the internal buffer size
+        for content_len in (0 .. 20_000).chain(vec![65_534, 65_535, 65_536, 65_537]) {
+            // `\r` and `\n` inside the contents must come through untouched
+            let content: Vec<u8> = b"ab\rcd\nef\r\ngh-".iter().cloned().cycle().take(content_len).collect();
+
+            let mut body = b"--boundary\r\n".to_vec();
+            body.extend_from_slice(&content);
+            body.extend_from_slice(b"\r\n--boundary--");
+
+            for &chunk in &[usize::max_value(), 1021] {
+                let src = ChunkReader { data: &body, chunk };
+                let mut reader = BoundaryReader::from_reader(src, BOUNDARY);
+
+                assert_eq!(reader.consume_boundary().unwrap(), true);
+
+                let mut read = Vec::new();
+                reader.read_to_end(&mut read).unwrap();
+
+                assert!(read == content,
+                        "content_len: {} chunk: {} read {} bytes, ends with {:?}",
+                        content_len, chunk, read.len(), &read[read.len().saturating_sub(4)..]);
+
+                assert_eq!(reader.consume_boundary().unwrap(), false);
+            }
+        }
     }
 
     #[test]
