@@ -193,7 +193,12 @@ impl<'s, W> StdoutTee<'s, W> {
 impl<'s, W: Write> Write for StdoutTee<'s, W> {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         self.inner.write_all(buf)?;
-        self.stdout.write(buf)
+
+        // Stdout is only a debugging aid here. The Windows console rejects anything that isn't
+        // valid Unicode ("text was not valid unicode"), which must not fail the actual write.
+        let _ = self.stdout.write_all(String::from_utf8_lossy(buf).as_bytes());
+
+        Ok(buf.len())
     }
 
     fn flush(&mut self) -> io::Result<()> {
