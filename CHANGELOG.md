@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.18.2 (2026-11-26)
+
+Bug fixes and dependency cleanup. No API changes.
+
+- Server: the CRLF in front of a boundary no longer ends up in the field data when it sits at
+  the end of the read buffer
+  ([abonander/multipart#139](https://github.com/abonander/multipart/issues/139)).
+- Client: `PreparedFields::boundary()` no longer panics on an empty form, for example after a
+  second call to `Multipart::prepare()`
+  ([abonander/multipart#122](https://github.com/abonander/multipart/issues/122)).
+- Client: `PreparedFields::content_len()` now includes the text fields. Before, it was too
+  small for every form that had any.
+- Mock: `StdoutTee` no longer fails a write when stdout rejects non-UTF-8 data, as the Windows
+  console does.
+- Replaced the unmaintained `twoway` and `safemem` dependencies with `memchr`, and require
+  `buf_redux_ng` 0.8.6, which dropped `safemem` as well. With
+  `default-features = false, features = ["server"]`, `cargo audit` now reports nothing.
+- Fixed typos in the examples.
+
 ## 0.18.1 (2026-11-19)
 
 No library code changes.
