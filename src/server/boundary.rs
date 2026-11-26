@@ -7,11 +7,9 @@
 
 //! Boundary parsing for `multipart` requests.
 
-use ::safemem;
-
 use super::buf_redux::BufReader;
 use super::buf_redux::policy::MinBuffered;
-use super::twoway;
+use super::memchr::memmem;
 
 use std::cmp;
 use std::borrow::Borrow;
@@ -43,7 +41,7 @@ impl<R> BoundaryReader<R> where R: Read {
     /// Internal API
     pub fn from_reader<B: Into<Vec<u8>>>(reader: R, boundary: B) -> BoundaryReader<R> {
         let mut boundary = boundary.into();
-        safemem::prepend(b"--", &mut boundary);
+        boundary.splice(0..0, b"--".iter().cloned());
         let source = BufReader::new(reader).set_policy(MinBuffered(MIN_BUF_SIZE));
 
         BoundaryReader {
@@ -198,7 +196,7 @@ impl<R> BoundaryReader<R> where R: Read {
 
 /// Find the boundary occurrence or the highest length to safely yield
 fn find_boundary(buf: &[u8], boundary: &[u8]) -> Result<usize, usize> {
-    if let Some(idx) = twoway::find_bytes(buf, boundary) {
+    if let Some(idx) = memmem::find(buf, boundary) {
         return Ok(idx);
     }
 
