@@ -135,7 +135,7 @@ the crate with Rocket 0.4. Run them with `cargo run --example <name>`.
   policy. A field boundary can straddle two reads, so the buffer must be refilled before it runs
   empty.
 - [`httparse`](https://crates.io/crates/httparse): zero-copy parsing of field headers.
-- [`twoway`](https://crates.io/crates/twoway): fast substring search for finding boundaries.
+- [`memchr`](https://crates.io/crates/memchr): fast substring search for finding boundaries.
 
 ## Credits
 

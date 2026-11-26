@@ -66,9 +66,6 @@ extern crate tempfile;
 #[macro_use]
 extern crate quick_error;
 
-#[cfg(feature = "server")]
-extern crate safemem;
-
 #[cfg(feature = "hyper")]
 extern crate hyper;
 

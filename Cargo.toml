@@ -78,6 +78,10 @@ optional = true
 [dependencies.log]
 version = "0.4"
 
+[dependencies.memchr]
+version = "2.4"
+optional = true
+
 [dependencies.mime]
 version = "0.3.14"
 
@@ -99,10 +103,6 @@ version = "0.8"
 version = "0.4"
 optional = true
 
-[dependencies.safemem]
-version = "0.3"
-optional = true
-
 [dependencies.tempfile]
 version = "3"
 
@@ -110,9 +110,6 @@ version = "3"
 version = "0.6"
 optional = true
 
-[dependencies.twoway]
-version = "0.1"
-optional = true
 [dev-dependencies.env_logger]
 version = "0.5"
 
@@ -122,4 +119,4 @@ client = []
 default = ["client", "hyper", "iron", "mock", "nickel", "server", "tiny_http"]
 mock = []
 nightly = []
-server = ["buf_redux", "httparse", "quick-error", "safemem", "twoway"]
+server = ["buf_redux", "httparse", "memchr", "quick-error"]
