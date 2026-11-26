@@ -261,6 +261,7 @@ pub struct PreparedFields<'d> {
     text_data: Cursor<Vec<u8>>,
     streams: Vec<PreparedField<'d>>,
     end_boundary: Cursor<String>,
+    boundary: String,
     content_len: Option<u64>,
 }
 
@@ -270,7 +271,8 @@ impl<'d> PreparedFields<'d> {
 
         // One of the two RFCs specifies that any bytes before the first boundary are to be
         // ignored anyway
-        let mut boundary = format!("\r\n--{}", super::gen_boundary());
+        let bare_boundary = super::gen_boundary();
+        let mut boundary = format!("\r\n--{}", bare_boundary);
 
         let mut text_data = Vec::new();
         let mut streams = Vec::new();
@@ -312,12 +314,14 @@ impl<'d> PreparedFields<'d> {
             boundary.push_str("--");
         }
 
+        content_len += text_data.len() as u64;
         content_len += boundary.len() as u64;
 
         Ok(PreparedFields {
             text_data: Cursor::new(text_data),
             streams,
             end_boundary: Cursor::new(boundary),
+            boundary: bare_boundary,
             content_len: if use_len { Some(content_len) } else { None },
         })
     }
@@ -330,10 +334,7 @@ impl<'d> PreparedFields<'d> {
 
     /// Get the boundary that was used to serialize the request.
     pub fn boundary(&self) -> &str {
-        let boundary = self.end_boundary.get_ref();
-
-        // Get just the bare boundary string
-        &boundary[4..boundary.len() - 2]
+        &self.boundary
     }
 }
 
@@ -542,5 +543,50 @@ mod hyper {
                 Body::ChunkedBody(self)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::Multipart;
+
+    use std::io::Read;
+
+    /// Regression test for abonander/multipart#122: `prepare()` drains the fields, so a second
+    /// call yields an empty form, and calling `boundary()` on that panicked.
+    #[test]
+    fn boundary_of_empty_form_does_not_panic() {
+        let mut form = Multipart::new();
+        form.add_text("hello", "world");
+
+        let first = form.prepare().unwrap();
+        assert!(!first.boundary().is_empty());
+
+        let mut second = form.prepare().unwrap();
+        assert!(!second.boundary().is_empty());
+        assert_eq!(second.content_len(), Some(0));
+
+        let mut body = Vec::new();
+        second.read_to_end(&mut body).unwrap();
+        assert!(body.is_empty());
+
+        let mut empty = Multipart::new().prepare().unwrap();
+        assert!(!empty.boundary().is_empty());
+    }
+
+    #[test]
+    fn content_len_matches_body() {
+        let mut form = Multipart::new();
+        form.add_text("hello", "world");
+        form.add_text("foo", "bar");
+
+        let mut prepared = form.prepare().unwrap();
+        let boundary = prepared.boundary().to_owned();
+
+        let mut body = Vec::new();
+        prepared.read_to_end(&mut body).unwrap();
+
+        assert_eq!(prepared.content_len(), Some(body.len() as u64));
+        assert!(body.ends_with(format!("\r\n--{}--", boundary).as_bytes()));
     }
 }
