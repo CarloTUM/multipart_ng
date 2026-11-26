@@ -15,7 +15,7 @@ fn main() {
     Iron::new(process_request).http("localhost:80").expect("Could not bind localhost:80");
 }
 
-/// Processes a request and returns response or an occured error.
+/// Processes a request and returns response or an occurred error.
 fn process_request(request: &mut Request) -> IronResult<Response> {
     // Getting a multipart reader wrapper
     match Multipart::from_request(request) {

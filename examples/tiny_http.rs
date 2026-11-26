@@ -12,12 +12,12 @@ fn main() {
         // This blocks until the next request is received
         let mut request = server.recv().unwrap();
 
-        // Processes a request and returns response or an occured error
+        // Processes a request and returns response or an occurred error
         let result = process_request(&mut request);
         let resp = match result {
             Ok(resp) => resp,
             Err(e) => {
-                println!("An error has occured during request proccessing: {:?}", e);
+                println!("An error has occurred during request proccessing: {:?}", e);
                 build_response(500, "The received data was not correctly proccessed on the server")
             }
         };
@@ -29,7 +29,7 @@ fn main() {
 
 type RespBody = Cursor<Vec<u8>>;
 
-/// Processes a request and returns response or an occured error.
+/// Processes a request and returns response or an occurred error.
 fn process_request(request: &mut Request) -> io::Result<Response<RespBody>> {
     // Getting a multipart reader wrapper
     match Multipart::from_request(request) {
