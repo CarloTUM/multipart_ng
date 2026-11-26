@@ -1,6 +1,6 @@
 [package]
 name = "multipart_ng"
-version = "0.18.1"
+version = "0.18.2"
 authors = [
     "Austin Bonander <austin.bonander@gmail.com>",
     "Carlo Deutschmann <deutschmanncarlo@gmail.com>",

@@ -11,10 +11,12 @@ Client- and server-side `multipart/form-data` handling (HTTP file uploads) with 
 `multipart_ng` is a maintained fork of [`multipart`](https://crates.io/crates/multipart) 0.18.0,
 whose repository is archived
 ([RUSTSEC-2023-0050](https://rustsec.org/advisories/RUSTSEC-2023-0050.html)).
-The API matches `multipart` 0.18.0 exactly. The only code change fixes the warning
+The API matches `multipart` 0.18.0 exactly. The fork fixes the warning
 *"the following packages contain code that will be rejected by a future version of Rust:
 buf_redux v0.8.4, multipart v0.18.0"* (lint `trailing_semicolon_in_macro`), both here and in
 the dependency, which is replaced by [`buf_redux_ng`](https://crates.io/crates/buf_redux_ng).
+It also fixes bugs reported against the original crate and drops unmaintained dependencies;
+see the [changelog](CHANGELOG.md).
 
 ## Installation
 
