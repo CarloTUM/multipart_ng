@@ -50,7 +50,7 @@ name = "rocket"
 required-features = ["mock", "rocket", "server"]
 [dependencies.buf_redux]
 package = "buf_redux_ng"
-version = "0.8.4"
+version = "0.8.6"
 optional = true
 default-features = false
 

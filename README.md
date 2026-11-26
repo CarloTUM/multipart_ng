@@ -29,13 +29,12 @@ Without the rename, import from `multipart_ng::` instead.
 
 > **Turn off the default features.** They enable the integrations for hyper 0.10, iron, nickel
 > and tiny_http 0.6. Those pull in about 130 crates, and as of November 2026 `cargo audit` reports
-> 4 vulnerabilities for them, including two HTTP parsing bugs in hyper 0.10
+> 6 vulnerabilities for them, including two HTTP parsing bugs in hyper 0.10
 > ([RUSTSEC-2021-0078](https://rustsec.org/advisories/RUSTSEC-2021-0078.html), request smuggling;
 > [RUSTSEC-2021-0079](https://rustsec.org/advisories/RUSTSEC-2021-0079.html)).
 > With `default-features = false, features = ["server"]`, the dependency tree is about
-> 35 crates and `cargo audit` reports no vulnerabilities, only informational warnings that
-> `safemem` and `twoway` are no longer maintained. With `features = ["client"]` it reports
-> nothing at all. The defaults also pull in `typemap` (through iron and nickel), which triggers
+> 35 crates and `cargo audit` reports nothing at all, and the same goes for
+> `features = ["client"]`. The defaults also pull in `typemap` (through iron and nickel), which triggers
 > its own future-incompatibility warning.
 > The defaults stay unchanged for compatibility with `multipart` 0.18.0.
 
